@@ -51,31 +51,6 @@ All configuration is done via environment variables. **All variables have sensib
 
 ## Usage
 
-### Docker Build and Run
-
-```bash
-# Build the image
-docker build -t dns-proxy .
-
-# Run the container
-docker run -d --name dns-proxy -p 5353:5353/udp dns-proxy
-```
-
-### Docker Compose
-
-Basic usage:
-
-```bash
-# Start the service
-docker-compose up -d
-
-# View logs
-docker-compose logs -f dns-proxy
-
-# Stop the service
-docker-compose down
-```
-
 ### Real-World Example: Integration with Existing Services
 
 Here's how to integrate the DNS proxy with an existing docker-compose setup (like nginx-proxy-manager):
@@ -104,8 +79,7 @@ services:
     image: doodkin/export-docker-dns:latest
     container_name: dns-proxy
     ports:
-      - "127.0.0.1:5353:5353" 
-      - "127.0.0.1:5353:5353/udp"  #  port on host to port in the docker
+      - "127.0.0.1:5353:5353"  # Binds both TCP and UDP
     environment:
       - STRIP_SUFFIX=.docker
     restart: unless-stopped
@@ -253,29 +227,58 @@ The proxy logs all queries with configurable verbosity:
 [DEBUG] Got 1 answers from Docker DNS for mycontainer
 ```
 
+
+### Docker Build and Run
+
+```bash
+# Build the image
+docker build -t export-docker-dns .
+
+# Run the container
+docker run -d --name dns-proxy -p 127.0.0.1:5353:5353 export-docker-dns
+```
+
+### Docker Compose usage
+
+Create in a folder docker-compose.yaml file in file write configuration, in same folder run commands to start:
+
+Basic usage:
+
+```bash
+# Start the service
+docker-compose up -d
+
+# View logs
+docker-compose logs -f dns-proxy
+
+# Stop the service
+docker-compose down
+```
+
+
 ## Publishing to Docker Hub
 
 To publish this DNS proxy to Docker Hub:
 
 ```bash
 # 1. Build and tag the image
-docker build -t yourusername/dns-proxy:latest .
+docker build -t doodkin/export-docker-dns:latest .
 
 # 2. Tag with version (optional)
-docker tag yourusername/dns-proxy:latest yourusername/dns-proxy:v1.0.0
+docker tag doodkin/export-docker-dns:latest doodkin/export-docker-dns:v1.0.0
 
 # 3. Login to Docker Hub
 docker login
 
 # 4. Push the image
-docker push yourusername/dns-proxy:latest
-docker push yourusername/dns-proxy:v1.0.0  # if you tagged with version
+docker push doodkin/export-docker-dns:latest
+docker push doodkin/export-docker-dns:v1.0.0  # if you tagged with version
 
 # 5. Update your docker-compose.yml to use the published image
 # Replace:
 #   build: ./export-docker-dns
 # With:
-#   image: yourusername/dns-proxy:latest
+#   image: doodkin/export-docker-dns:latest
 ```
 
 ### Using Published Image
@@ -285,11 +288,10 @@ Once published, users can use your DNS proxy without building locally:
 ```yaml
 services:
   dns-proxy:
-    image: yourusername/dns-proxy:latest  # Use published image
+    image: doodkin/export-docker-dns:latest  # Use published image
     container_name: dns-proxy
     ports:
-      - "127.0.0.1:5353:5353"
-      - "127.0.0.1:5353:5353/udp"
+      - "127.0.0.1:5353:5353"  # Binds both TCP and UDP
     environment:
       - STRIP_SUFFIX=.docker
     restart: unless-stopped
