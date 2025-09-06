@@ -104,8 +104,8 @@ services:
     image: doodkin/export-docker-dns:latest
     container_name: dns-proxy
     ports:
-      - "127.0.0.1:5353:5353"  # Only bind to localhost
-      - "127.0.0.1:5353:5353/udp"  # Only bind to localhost
+      - "127.0.0.1:5353:5353" 
+      - "127.0.0.1:5353:5353/udp"  #  port on host to port in the docker
     environment:
       - STRIP_SUFFIX=.docker
     restart: unless-stopped
@@ -135,7 +135,7 @@ dig @localhost -p 5353 google.com
 
 ### Configuring systemd-resolved for Automatic Suffix Routing
 
-
+As we exported the DNS from inside the docker network to port on the host 127.0.0.1:5353.
 
 To automatically route all `.docker` queries to your DNS proxy, configure systemd-resolved:
 
