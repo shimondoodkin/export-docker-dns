@@ -114,7 +114,7 @@ services:
 
 networks:
   nginx:
-    name: nginx # I gave a network manual name
+    name: nginx # notice I gave a network manual name
     driver: bridge
 ```
 
@@ -137,16 +137,13 @@ services:
     #  - "3000:3000"
     volumes:
       - ./api-server:/app
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
+    # Remove depends_on since postgres/redis are not in this compose file
     restart: unless-stopped
     command: sh -c "npm run start"
     networks:
       - nginx
-networks:
+
+networks: # bring in network named nginx
   nginx:
     external: true
 ```

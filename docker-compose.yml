@@ -1,10 +1,14 @@
 version: '3.8'
 
 services:
+  # This service is not useful to run by itself alone on its own network.
+  # It should run with other Docker containers on the same network to export their names.
+
   dns-proxy:
     build: .
     container_name: dns-proxy
     ports:
+      - "5353:5353"
       - "5353:5353/udp"
     environment:
       - LISTEN_ADDR=0.0.0.0
