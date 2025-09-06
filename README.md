@@ -139,7 +139,7 @@ dig @localhost -p 5353 google.com
 
 To automatically route all `.docker` queries to your DNS proxy, configure systemd-resolved:
 
-create a file in /etc/systemd/resolved.conf.d/
+Create a .conf file in /etc/systemd/resolved.conf.d/
 
 for example  /etc/systemd/resolved.conf.d/docker-dns.conf
 with content
