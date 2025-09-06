@@ -101,7 +101,7 @@ services:
 
   # Add the DNS proxy to export Docker DNS
   dns-proxy:
-    build: ./export-docker-dns  # Path to your DNS proxy
+    image: doodkin/export-docker-dns:latest
     container_name: dns-proxy
     ports:
       - "127.0.0.1:5353:5353"  # Only bind to localhost
