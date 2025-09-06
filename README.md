@@ -114,24 +114,43 @@ services:
 
 networks:
   nginx:
-    name: nginx
+    name: nginx # I gave a network manual name
     driver: bridge
 ```
 
-After starting this setup:
-- Configure systemd-resolved as shown above
-- Access nginx container: `curl http://nginx.docker`
-- The DNS proxy will resolve `nginx.docker` to the container's IP in the `nginx` network
+run another docker-compose on same network, add the network as external, for example nodejs
 
-### Testing
+```yaml
+version: "3.8"
+services:
 
-```bash
-# Test Docker container resolution
-dig @localhost -p 5353 mycontainer.docker
-
-# Test upstream DNS resolution (only works if ENABLE_UPSTREAM=true)
-dig @localhost -p 5353 google.com
+  # NestJS API Server
+  api-server:
+    image: node:20-alpine
+    container_name: api-server
+    working_dir: /app
+    env_file:
+      - ./api-server/.env
+    environment:
+      PORT: 3000
+    # ports:
+    #  - "3000:3000"
+    volumes:
+      - ./api-server:/app
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    command: sh -c "npm run start"
+    networks:
+      - nginx
+networks:
+  nginx:
+    external: true
 ```
+
 
 ### Configuring systemd-resolved for Automatic Suffix Routing
 
@@ -176,6 +195,38 @@ server=/docker/127.0.0.1#5353
 2. **Service Discovery**: Provide DNS-based service discovery for Docker containers
 3. **Load Balancer Integration**: Use with load balancers that need DNS resolution
 4. **Local Development**: Simplify container access in development workflows
+
+
+### 
+
+### Testing
+
+First, verify the DNS proxy is running and get its container IP:
+
+```bash
+# Check if DNS proxy container is running in docker ps for example 
+docker ps | grep dns-proxy
+
+# Get the container's IP address manually
+docker inspect dns-proxy | grep IPAddress
+
+# Example output: "IPAddress": "172.17.0.2"
+# Use that IP to test DNS resolution directly (bypasses host port routing)
+# Note: Replace 'mycontainer' below with one of your actual container names in the network
+dig @172.17.0.2 -p 5353 mycontainer.docker
+```
+
+Then test via localhost (host port mapping):
+
+```bash
+# Test Docker container resolution via host.
+# Note: Replace 'mycontainer' below with one of your actual container names in the network
+dig @localhost -p 5353 mycontainer.docker
+
+# Test upstream DNS resolution (only works if ENABLE_UPSTREAM=true)
+dig @localhost -p 5353 google.com
+```
+
 
 ## Logs
 
