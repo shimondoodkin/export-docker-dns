@@ -158,7 +158,11 @@ sudo tee /etc/systemd/resolved.conf.d/docker-dns.conf << EOF
 [Resolve]
 DNS=127.0.0.1:5353~docker
 EOF
+```
 
+restart systemd-resolved
+
+```
 # Restart systemd-resolved
 sudo systemctl restart systemd-resolved
 
