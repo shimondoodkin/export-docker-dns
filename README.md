@@ -135,7 +135,21 @@ dig @localhost -p 5353 google.com
 
 ### Configuring systemd-resolved for Automatic Suffix Routing
 
+
+
 To automatically route all `.docker` queries to your DNS proxy, configure systemd-resolved:
+
+create a file in /etc/systemd/resolved.conf.d/
+
+for example  /etc/systemd/resolved.conf.d/docker-dns.conf
+with content
+
+```
+[Resolve]
+DNS=127.0.0.1:5353~docker
+```
+
+or using commands:
 
 ```bash
 # Create a resolved configuration for the .docker domain
