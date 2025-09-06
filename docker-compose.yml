@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  dns-proxy:
+    build: .
+    container_name: dns-proxy
+    ports:
+      - "5353:5353/udp"
+    environment:
+      - LISTEN_ADDR=0.0.0.0
+      - LISTEN_PORT=5353
+      - DOCKER_DNS=127.0.0.11:53
+      - UPSTREAM_DNS=8.8.8.8:53
+      - ENABLE_UPSTREAM=false
+      - TIMEOUT_SECONDS=2
+      - LOG_LEVEL=INFO
+      - ENABLE_METRICS=false
+      - STRIP_SUFFIX=.docker
+    restart: unless-stopped
+    networks:
+      - dns-network
+
+networks:
+  dns-network:
+    driver: bridge
