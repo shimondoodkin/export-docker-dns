@@ -123,34 +123,36 @@ networks: # bring in network named nginx
 ```
 
 
-### Configuring systemd-resolved for Automatic Suffix Routing
+### Configuring systemd-resolved with DNS Server Delegation
+
+This feature is available since v258. Systemd-resolved didn't had such direct feature before and adding your DNS proxy to `/etc/systemd/resolved.conf.d/` will either not work or override your existing DNS.
 
 As we exported the DNS from inside the docker network to port on the host 127.0.0.1:5353.
 
 To automatically route all `.docker` queries to your DNS proxy, configure systemd-resolved:
 
-Create a .conf file in /etc/systemd/resolved.conf.d/
-
-for example  /etc/systemd/resolved.conf.d/docker-dns.conf
-with content
+Create a `.conf` file in `/etc/systemd/dns-delegate.d/`
 
 ```
+# Example of /etc/systemd/dns-delegate.d/docker-dns.dns-delegate
 [Resolve]
-DNS=127.0.0.1:5353~docker
+DNS=127.0.0.1:5353
+Domains=~docker
 ```
 
 or using commands:
 
 ```bash
 # Create a resolved configuration for the .docker domain
-sudo mkdir -p /etc/systemd/resolved.conf.d
-sudo tee /etc/systemd/resolved.conf.d/docker-dns.conf << EOF
+sudo mkdir -p /etc/systemd/dns-delegate.d
+sudo tee /etc/systemd/dns-delegate.d/docker-dns.dns-delegate << EOF
 [Resolve]
-DNS=127.0.0.1:5353~docker
+DNS=127.0.0.1:5353
+Domains=~docker
 EOF
 ```
 
-restart systemd-resolved
+then restart systemd-resolved
 
 ```
 # Restart systemd-resolved
